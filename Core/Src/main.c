@@ -38,7 +38,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define CMD_INTERVAL 60 * 1000 
+#define HT_INTERVAL 1000 
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -67,13 +68,20 @@ uint32_t cmd[2];
 uint32_t cmdSegIdx = 0;
 uint32_t segBitIdx = 0;
 
-uint64_t lastUs = 0;
+uint64_t lastBitReceivedUs = 0;
+
+uint32_t lastHTReceivedMs = -HT_INTERVAL;
+
+uint32_t lastCmdSentMs = -CMD_INTERVAL;
+float tempLower = 26.5;
+float tempUpper = 27.5;
+
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   uint64_t currentUs = HPT_GetUs();
-  uint64_t deltaUs = HPT_DeltaUs(lastUs, currentUs);
-  lastUs = currentUs;
+  uint64_t deltaUs = HPT_DeltaUs(lastBitReceivedUs, currentUs);
+  lastBitReceivedUs = currentUs;
   if(GPIO_Pin == GPIO_PIN_13)
   {
     if (deltaUs > 4000)
@@ -215,7 +223,7 @@ int main(void)
   AHT20_Init();
 
   OLED_Init();
-  OLED_PlotString(0, 0, "Test", OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+  OLED_PlotString(0, 16, "Loading...", OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
   OLED_Flush();
 
   setACCmdLevel(0);
@@ -227,6 +235,9 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  float humidity = 0.0, temperature = 0.0;
+  char text_buf[50] = {0};
+  uint8_t lastCmd = 0;
   while (1)
   {
     /* USER CODE END WHILE */
@@ -236,18 +247,58 @@ int main(void)
     if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == GPIO_PIN_RESET) {
       sendACCmd(cmdOn);
     }
+    
+    uint32_t currentMs = HPT_GetMs();
 
-    float humidity = 0.0, temperature = 0.0;
-    char send_buf[50] = {0};
+    // HT
+    if (HPT_DeltaMs(lastHTReceivedMs, currentMs) >= HT_INTERVAL) {
+      AHT20_Read(&temperature, &humidity);
+      lastHTReceivedMs = currentMs;
+    }
 
-    AHT20_Read(&temperature, &humidity);
+    // command
+    uint32_t cmdSentDeltaMs = HPT_DeltaMs(lastCmdSentMs, currentMs);
+    if (cmdSentDeltaMs >= CMD_INTERVAL) {
+      if (temperature > tempUpper) {
+        sendACCmd(cmdOn);
+        lastCmdSentMs = currentMs;
+        lastCmd = 1;
+      }
+      if (temperature < tempLower) {
+        sendACCmd(cmdOff);
+        lastCmdSentMs = currentMs;
+        lastCmd = 0;
+      }
+    }
+    
 
-    sprintf(send_buf, "T: %.1f H: %.1f", temperature, humidity);
-    OLED_PlotString(0, 16, send_buf, OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
-    sprintf(send_buf, "C: %0.8X %0.8X", cmd[0], cmd[1]);
-    OLED_PlotString(0, 32, send_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+    // canvas
+    sprintf(text_buf, "L: %.1f   U: %.1f", tempLower, tempUpper);
+    OLED_PlotString(0, 8, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+
+    sprintf(text_buf, "T: %.1f   H: %.1f", temperature, humidity);
+    OLED_PlotString(0, 16, text_buf, OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+    
+    if (cmdSentDeltaMs >= CMD_INTERVAL) {
+      if (lastCmd) {
+        sprintf(text_buf, "L: On    D: -----", cmdSentDeltaMs);
+      } else {
+        sprintf(text_buf, "L: Off   D: -----", cmdSentDeltaMs);
+      }
+    } 
+    else {
+      if (lastCmd) {
+        sprintf(text_buf, "L: On    D: %.5d", cmdSentDeltaMs);
+      } else {
+        sprintf(text_buf, "L: Off   D: %.5d", cmdSentDeltaMs);
+      }
+    }
+    
+    OLED_PlotString(0, 40, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+    sprintf(text_buf, "C: %0.8X %0.8X", cmd[0], cmd[1]);
+    OLED_PlotString(0, 56, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+
     OLED_Flush();
-    HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
