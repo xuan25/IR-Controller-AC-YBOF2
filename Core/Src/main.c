@@ -279,7 +279,7 @@ int main(void)
     sprintf(text_buf, "L: %.1f   U: %.1f", tempLower, tempUpper);
     OLED_PlotString(0, 8, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
 
-    sprintf(text_buf, "T: %.1f   H: %.1f", temperature, humidity);
+    sprintf(text_buf, "T: %.1f H: %.1f", temperature, humidity);
     OLED_PlotString(0, 16, text_buf, OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
     
     if (cmdSentDeltaMs >= CMD_INTERVAL) {
