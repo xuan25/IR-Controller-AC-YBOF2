@@ -72,7 +72,7 @@ void HPT_DelayMs(uint32_t ms)
 void HPT_DelayUs(uint64_t us)
 {
 	uint64_t startingUs = HPT_GetUs();
-  while (HPT_DeltaMs(startingUs, HPT_GetUs()) < us);
+  while (HPT_DeltaUs(startingUs, HPT_GetUs()) < us);
 }
 
 /**

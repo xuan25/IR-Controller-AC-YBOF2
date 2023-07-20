@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "i2c.h"
+#include "tim.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -110,6 +111,72 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   }
 }
 
+
+
+void setACCmdLevel(uint8_t level) {
+  if (level) {
+    // TODO:
+    htim4.Instance->CCR3 = htim4.Instance->ARR / 2;
+  } 
+  else {
+    // TODO:
+    htim4.Instance->CCR3 = 0;
+  }
+}
+
+void sendACCmdBit(uint8_t bit) {
+  if (bit) {
+    setACCmdLevel(0);
+    HPT_DelayUs(646);
+    setACCmdLevel(1);
+    HPT_DelayUs(1643);
+  } 
+  else {
+    setACCmdLevel(0);
+    HPT_DelayUs(646);
+    setACCmdLevel(1);
+    HPT_DelayUs(516);
+  }
+}
+
+void sendACCmd(uint32_t cmd[2]) {
+
+  // start
+  setACCmdLevel(0);
+  HPT_DelayUs(9000);
+  setACCmdLevel(1);
+  HPT_DelayUs(4500);
+
+  // seg 1
+  for (int i=0; i<32; i++) {
+    sendACCmdBit(cmd[0] >> (32 - 1 - i) & 0b1);
+  }
+
+  sendACCmdBit(0);
+  sendACCmdBit(1);
+  sendACCmdBit(0);
+
+  // inter
+  setACCmdLevel(0);
+  HPT_DelayUs(646);
+  setACCmdLevel(1);
+  HPT_DelayUs(20000);
+  
+  // seg 2
+  for (int i=0; i<32; i++) {
+    sendACCmdBit(cmd[1] >> (32 - 1 - i) & 0b1);
+  }
+
+  // end
+  setACCmdLevel(0);
+  HPT_DelayUs(646);
+  setACCmdLevel(1);
+  HPT_DelayUs(40000);
+
+  // reset
+  setACCmdLevel(0);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -141,6 +208,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_Delay(100);
@@ -151,6 +219,11 @@ int main(void)
   OLED_PlotString(0, 0, "Test", OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
   OLED_Flush();
 
+  setACCmdLevel(0);
+  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
+
+  HAL_Delay(3000);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -160,6 +233,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == GPIO_PIN_RESET) {
+      sendACCmd(cmdOn);
+    }
+
     float humidity = 0.0, temperature = 0.0;
     char send_buf[50] = {0};
 
