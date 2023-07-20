@@ -8,8 +8,6 @@
 */
 void AHT20_Init(void) {
 	uint8_t read_buf = 0;
-	//等待DHT20上电稳定
-	HAL_Delay(500);
 	HAL_I2C_Master_Receive(&hi2c1, AHT20_ADDRESS, &read_buf, 1, 10);
 	if ((read_buf & 0x18) != 0x18) {
 		AHT20_ResetRegister(0x1B);
