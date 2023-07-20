@@ -115,12 +115,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void setACCmdLevel(uint8_t level) {
   if (level) {
-    // TODO:
     htim4.Instance->CCR3 = htim4.Instance->ARR / 2;
   } 
   else {
-    // TODO:
-    htim4.Instance->CCR3 = 0;
+    htim4.Instance->CCR3 = htim4.Instance->ARR + 1;
   }
 }
 
