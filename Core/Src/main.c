@@ -76,7 +76,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   lastUs = currentUs;
   if(GPIO_Pin == GPIO_PIN_13)
   {
-    if (deltaUs > 8000)
+    if (deltaUs > 4000)
     {
       // beginning of the transmit
       segBitIdx = 0;
@@ -126,26 +126,26 @@ void setACCmdLevel(uint8_t level) {
 
 void sendACCmdBit(uint8_t bit) {
   if (bit) {
-    setACCmdLevel(0);
-    HPT_DelayUs(646);
     setACCmdLevel(1);
-    HPT_DelayUs(1643);
+    HPT_DelayUs(680);
+    setACCmdLevel(0);
+    HPT_DelayUs(1530);
   } 
   else {
-    setACCmdLevel(0);
-    HPT_DelayUs(646);
     setACCmdLevel(1);
-    HPT_DelayUs(516);
+    HPT_DelayUs(680);
+    setACCmdLevel(0);
+    HPT_DelayUs(510);
   }
 }
 
 void sendACCmd(uint32_t cmd[2]) {
 
   // start
-  setACCmdLevel(0);
-  HPT_DelayUs(9000);
   setACCmdLevel(1);
-  HPT_DelayUs(4500);
+  HPT_DelayUs(9010);
+  setACCmdLevel(0);
+  HPT_DelayUs(4505);
 
   // seg 1
   for (int i=0; i<32; i++) {
@@ -157,10 +157,10 @@ void sendACCmd(uint32_t cmd[2]) {
   sendACCmdBit(0);
 
   // inter
-  setACCmdLevel(0);
-  HPT_DelayUs(646);
   setACCmdLevel(1);
-  HPT_DelayUs(20000);
+  HPT_DelayUs(510);
+  setACCmdLevel(0);
+  HPT_DelayUs(19975);
   
   // seg 2
   for (int i=0; i<32; i++) {
@@ -168,10 +168,11 @@ void sendACCmd(uint32_t cmd[2]) {
   }
 
   // end
-  setACCmdLevel(0);
-  HPT_DelayUs(646);
   setACCmdLevel(1);
-  HPT_DelayUs(40000);
+  HPT_DelayUs(510);
+  setACCmdLevel(0);
+  HPT_DelayUs(19975);
+  HPT_DelayUs(19975);
 
   // reset
   setACCmdLevel(0);
