@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include "aht20.h"
+#include "hpt.h"
 #include "oled.h"
 
 /* USER CODE END Includes */
@@ -58,6 +59,56 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint32_t cmdOn[] = { 0x9000000A, 0x0004000A };
+uint32_t cmdOff[] = { 0x8000000A, 0x0004000B };
+
+uint32_t cmd[2];
+uint32_t cmdSegIdx = 0;
+uint32_t segBitIdx = 0;
+
+uint64_t lastUs = 0;
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  uint64_t currentUs = HPT_GetUs();
+  uint64_t deltaUs = HPT_DeltaUs(lastUs, currentUs);
+  lastUs = currentUs;
+  if(GPIO_Pin == GPIO_PIN_13)
+  {
+    if (deltaUs > 8000)
+    {
+      // beginning of the transmit
+      segBitIdx = 0;
+      cmdSegIdx++;
+      if (cmdSegIdx == 2) {
+        cmdSegIdx = 0;
+        cmd[0] = 0;
+        cmd[1] = 0;
+      }
+    }
+    else if (deltaUs > 1700)
+    {
+      // bit-1
+      if (segBitIdx < 32) {
+        segBitIdx++;
+        cmd[cmdSegIdx] |= (1UL << (32 - segBitIdx));   // write 1
+      }
+      
+    }
+    else if (deltaUs > 1000)
+    {
+      // bit-0
+      if (segBitIdx < 32) {
+        segBitIdx++;
+        cmd[cmdSegIdx] &= ~(1UL << (32 - segBitIdx));   // write 0
+      }
+    }
+    if (cmdSegIdx == 1 && segBitIdx == 32) {
+      cmdSegIdx = 0;
+      segBitIdx = 0;
+    }
+  }
+}
 
 /* USER CODE END 0 */
 
@@ -116,6 +167,8 @@ int main(void)
 
     sprintf(send_buf, "T: %.1f H: %.1f", temperature, humidity);
     OLED_PlotString(0, 16, send_buf, OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+    sprintf(send_buf, "C: %0.8X %0.8X", cmd[0], cmd[1]);
+    OLED_PlotString(0, 32, send_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
     OLED_Flush();
     HAL_Delay(1000);
   }
