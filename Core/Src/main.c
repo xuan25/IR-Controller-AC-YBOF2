@@ -23,6 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
+#include "aht20.h"
 #include "oled.h"
 
 /* USER CODE END Includes */
@@ -90,6 +92,10 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
+  HAL_Delay(100);
+
+  AHT20_Init();
+
   OLED_Init();
   OLED_PlotString(0, 0, "Test", OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
   OLED_Flush();
@@ -103,6 +109,15 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    float humidity = 0.0, temperature = 0.0;
+    char send_buf[50] = {0};
+
+    AHT20_Read(&temperature, &humidity);
+
+    sprintf(send_buf, "T: %.1f H: %.1f", temperature, humidity);
+    OLED_PlotString(0, 16, send_buf, OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+    OLED_Flush();
+    HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
