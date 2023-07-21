@@ -337,6 +337,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   float humidity = 0.0, temperature = 0.0;
+  uint8_t hasHTReading = 0;
   char text_buf[50] = {0};
   uint8_t lastCmd = 0;
 
@@ -367,22 +368,26 @@ int main(void)
     if (lastHTReadMeasureMs != lastHTMeasureMs && HPT_DeltaMs(lastHTMeasureMs, currentMs) >= HT_READ_DELAY) {
       AHT20_Read(&temperature, &humidity);
       lastHTReadMeasureMs = lastHTMeasureMs;
+      hasHTReading = 1;
     }
 
     // command
     uint32_t cmdSentDeltaMs = HPT_DeltaMs(lastCmdSentMs, currentMs);
-    if (cmdSentDeltaMs >= CMD_INTERVAL) {
-      if (temperature > tempUpper) {
-        sendACCmd(cmdOn);
-        lastCmdSentMs = currentMs;
-        lastCmd = 1;
-      }
-      if (temperature < tempLower) {
-        sendACCmd(cmdOff);
-        lastCmdSentMs = currentMs;
-        lastCmd = 0;
+    if (hasHTReading) {
+      if (cmdSentDeltaMs >= CMD_INTERVAL) {
+        if (temperature > tempUpper) {
+          sendACCmd(cmdOn);
+          lastCmdSentMs = currentMs;
+          lastCmd = 1;
+        }
+        if (temperature < tempLower) {
+          sendACCmd(cmdOff);
+          lastCmdSentMs = currentMs;
+          lastCmd = 0;
+        }
       }
     }
+    
     
 
     // canvas
