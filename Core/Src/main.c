@@ -29,6 +29,7 @@
 #include "hpt.h"
 #include "oled.h"
 #include "binary_push_key.h"
+#include "pushable_dial.h"
 
 /* USER CODE END Includes */
 
@@ -74,6 +75,7 @@ uint64_t lastBitReceivedUs = 0;
 uint32_t lastHTReceivedMs = -HT_INTERVAL;
 
 uint32_t lastCmdSentMs = -CMD_INTERVAL;
+
 float tempLower = 26.5;
 float tempUpper = 27.5;
 
@@ -221,6 +223,66 @@ BinaryPushKey keys[] = {
   },
 };
 
+uint8_t OnPressedDialTicked(struct PushableDial *sender, int8_t direction) {
+  if (tempUpper - tempLower > 0.2) {
+    float delta = direction > 0 ? 0.1 : -0.1;
+    tempLower += delta;
+    tempUpper -= delta;
+  }
+}
+
+uint8_t OnReleasedDialTicked(struct PushableDial *sender, int8_t direction) {
+  float delta = direction > 0 ? 0.1 : -0.1;
+  tempLower -= delta;
+  tempUpper -= delta;
+}
+
+uint8_t OnPushKeyStateChanged(struct PushableDial *sender, BinaryPushKeyState state, uint8_t isDialTicked) {
+
+}
+
+PushableDial dial = {
+  .PressedDial = &(Dial) {
+    .Encoder = &(Encoder) {
+      .OffLevel = GPIO_PIN_SET,
+      .PinA = &(GPIO_Pin) {
+        .GPIOx = GPIOA,
+        .GPIO_Pin = GPIO_PIN_8
+      },
+      .PinB = &(GPIO_Pin) {
+        .GPIOx = GPIOA,
+        .GPIO_Pin = GPIO_PIN_9
+      },
+    },
+    .TickInterval = 3
+  },
+  .ReleasedDial = &(Dial) {
+    .Encoder = &(Encoder) {
+      .OffLevel = GPIO_PIN_SET,
+      .PinA = &(GPIO_Pin) {
+        .GPIOx = GPIOA,
+        .GPIO_Pin = GPIO_PIN_8
+      },
+      .PinB = &(GPIO_Pin) {
+        .GPIOx = GPIOA,
+        .GPIO_Pin = GPIO_PIN_9
+      },
+    },
+    .TickInterval = 3
+  },
+  .PushKey = &(BinaryPushKey){
+    .Key = &(Key){ },
+    .Pin = &(GPIO_Pin){
+      .GPIOx = GPIOB,
+      .GPIO_Pin = GPIO_PIN_15
+    },
+    .ReleasedLevel = GPIO_PIN_SET
+  },
+  .OnPressedDialTicked = OnPressedDialTicked,
+  .OnReleasedDialTicked = OnReleasedDialTicked,
+  .OnPushKeyStateChanged = OnPushKeyStateChanged
+};
+
 /* USER CODE END 0 */
 
 /**
@@ -279,6 +341,7 @@ int main(void)
   for (int i = 0; i < sizeof(keys)/sizeof(BinaryPushKey); i++) {
     BinaryPushKey_Init(&keys[i]);
   }
+  PushableDial_Init(&dial);
 
   while (1)
   {
@@ -289,6 +352,7 @@ int main(void)
     for (int i = 0; i < sizeof(keys)/sizeof(BinaryPushKey); i++) {
       BinaryPushKey_Scan(&keys[i]);
     }
+    PushableDial_Scan(&dial);
     
     uint32_t currentMs = HPT_GetMs();
 
