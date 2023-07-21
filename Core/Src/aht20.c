@@ -31,6 +31,18 @@ void AHT20_ResetRegister(uint8_t addr) {
 }
 
 /**
+ * @brief Start measuring (requires 75ms to complete for reading)
+ * 
+*/
+void AHT20_Measure() {
+	uint8_t cmd_ac[3] = { 0xAC, 0x33, 0x00 };
+	uint8_t read_buf[6] = { 0 };
+	int32_t data = 0;
+	int16_t hum = 0, tmp = 0;
+	HAL_I2C_Master_Transmit(&hi2c1, AHT20_ADDRESS, cmd_ac, 3, 10);
+}
+
+/**
  * @brief 获取温度和湿度
  * 
  * @param Temperature 用于接收温度的变量地址
@@ -39,12 +51,9 @@ void AHT20_ResetRegister(uint8_t addr) {
  * @note 建议获取间隔大于500毫秒
 */
 void AHT20_Read(float *Temperature, float *Humidity) {
-	uint8_t cmd_ac[3] = { 0xAC, 0x33, 0x00 };
 	uint8_t read_buf[6] = { 0 };
 	int32_t data = 0;
 	int16_t hum = 0, tmp = 0;
-	HAL_I2C_Master_Transmit(&hi2c1, AHT20_ADDRESS, cmd_ac, 3, 10);
-	HAL_Delay(200);
 	HAL_I2C_Master_Receive(&hi2c1, AHT20_ADDRESS, read_buf, 6, 10);
 	if ((read_buf[0] & 0x80) != 0x80) {
 		data = (data | read_buf[1]) << 8;

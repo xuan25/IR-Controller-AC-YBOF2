@@ -42,6 +42,7 @@
 /* USER CODE BEGIN PD */
 #define CMD_INTERVAL 60 * 1000 
 #define HT_INTERVAL 1000 
+#define HT_READ_DELAY 75 
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -72,7 +73,8 @@ uint32_t segBitIdx = 0;
 
 uint64_t lastBitReceivedUs = 0;
 
-uint32_t lastHTReceivedMs = -HT_INTERVAL;
+uint32_t lastHTMeasureMs = -HT_INTERVAL;
+uint32_t lastHTReadMeasureMs = -HT_INTERVAL;
 
 uint32_t lastCmdSentMs = -CMD_INTERVAL;
 
@@ -357,9 +359,14 @@ int main(void)
     uint32_t currentMs = HPT_GetMs();
 
     // HT
-    if (HPT_DeltaMs(lastHTReceivedMs, currentMs) >= HT_INTERVAL) {
+    if (HPT_DeltaMs(lastHTMeasureMs, currentMs) >= HT_INTERVAL) {
+      AHT20_Measure();
+      lastHTMeasureMs = currentMs;
+    }
+
+    if (lastHTReadMeasureMs != lastHTMeasureMs && HPT_DeltaMs(lastHTMeasureMs, currentMs) >= HT_READ_DELAY) {
       AHT20_Read(&temperature, &humidity);
-      lastHTReceivedMs = currentMs;
+      lastHTReadMeasureMs = lastHTMeasureMs;
     }
 
     // command
