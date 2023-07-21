@@ -81,14 +81,16 @@ uint32_t lastCmdSentMs = -CMD_INTERVAL;
 float tempLower = 26.5;
 float tempUpper = 27.5;
 
+BinaryPushKey keys[];
+PushableDial dial;
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  uint64_t currentUs = HPT_GetUs();
-  uint64_t deltaUs = HPT_DeltaUs(lastBitReceivedUs, currentUs);
-  lastBitReceivedUs = currentUs;
   if(GPIO_Pin == GPIO_PIN_13)
   {
+    uint64_t currentUs = HPT_GetUs();
+    uint64_t deltaUs = HPT_DeltaUs(lastBitReceivedUs, currentUs);
+    lastBitReceivedUs = currentUs;
     if (deltaUs > 4000)
     {
       // beginning of the transmit
@@ -121,6 +123,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
       cmdSegIdx = 0;
       segBitIdx = 0;
     }
+  }
+  if (GPIO_Pin == GPIO_PIN_8 || GPIO_Pin == GPIO_PIN_9 || GPIO_Pin == GPIO_PIN_15) {
+    PushableDial_Scan(&dial);
   }
 }
 
@@ -361,7 +366,6 @@ int main(void)
     for (int i = 0; i < sizeof(keys)/sizeof(BinaryPushKey); i++) {
       BinaryPushKey_Scan(&keys[i]);
     }
-    PushableDial_Scan(&dial);
     
     uint32_t currentMs = HPT_GetMs();
 
