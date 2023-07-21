@@ -193,7 +193,7 @@ void sendACCmd(uint32_t cmd[2]) {
 uint8_t OnKey1StateChanged(struct BinaryPushKey *sender, BinaryPushKeyState state) {
   if (state == PushKeyPressed) {
     sendACCmd(cmdOn);
-    
+
     uint32_t currentMs = HPT_GetMs();
     lastCmdSentMs = currentMs;
   }
@@ -232,7 +232,7 @@ BinaryPushKey keys[] = {
 };
 
 uint8_t OnPressedDialTicked(struct PushableDial *sender, int8_t direction) {
-  if (tempUpper - tempLower > 0.2) {
+  if (tempUpper - tempLower > 0.2 || direction < 0) {
     float delta = direction > 0 ? 0.1 : -0.1;
     tempLower += delta;
     tempUpper -= delta;
