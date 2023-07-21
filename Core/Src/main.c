@@ -28,6 +28,7 @@
 #include "aht20.h"
 #include "hpt.h"
 #include "oled.h"
+#include "binary_push_key.h"
 
 /* USER CODE END Includes */
 
@@ -184,6 +185,42 @@ void sendACCmd(uint32_t cmd[2]) {
   setACCmdLevel(0);
 }
 
+
+uint8_t OnKey1StateChanged(struct BinaryPushKey *sender, BinaryPushKeyState state) {
+  if (state == PushKeyPressed) {
+    sendACCmd(cmdOn);
+  }
+  return 1;
+}
+
+uint8_t OnKey2StateChanged(struct BinaryPushKey *sender, BinaryPushKeyState state) {
+  if (state == PushKeyPressed) {
+    sendACCmd(cmdOff);
+  }
+  return 1;
+}
+
+BinaryPushKey keys[] = {
+  {
+    .Key = &(Key){ },
+    .Pin = &(GPIO_Pin){
+      .GPIOx = GPIOB,
+      .GPIO_Pin = GPIO_PIN_12
+    },
+    .ReleasedLevel = GPIO_PIN_SET,
+    .OnStateChanged = OnKey1StateChanged
+  },
+  {
+    .Key = &(Key){ },
+    .Pin = &(GPIO_Pin){
+      .GPIOx = GPIOB,
+      .GPIO_Pin = GPIO_PIN_13
+    },
+    .ReleasedLevel = GPIO_PIN_SET,
+    .OnStateChanged = OnKey2StateChanged
+  },
+};
+
 /* USER CODE END 0 */
 
 /**
@@ -238,17 +275,19 @@ int main(void)
   float humidity = 0.0, temperature = 0.0;
   char text_buf[50] = {0};
   uint8_t lastCmd = 0;
+
+  for (int i = 0; i < sizeof(keys)/sizeof(BinaryPushKey); i++) {
+    BinaryPushKey_Init(&keys[i]);
+  }
+
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
-    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == GPIO_PIN_RESET) {
-      sendACCmd(cmdOn);
-    }
-    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13) == GPIO_PIN_RESET) {
-      sendACCmd(cmdOff);
+    for (int i = 0; i < sizeof(keys)/sizeof(BinaryPushKey); i++) {
+      BinaryPushKey_Scan(&keys[i]);
     }
     
     uint32_t currentMs = HPT_GetMs();
