@@ -193,6 +193,9 @@ void sendACCmd(uint32_t cmd[2]) {
 uint8_t OnKey1StateChanged(struct BinaryPushKey *sender, BinaryPushKeyState state) {
   if (state == PushKeyPressed) {
     sendACCmd(cmdOn);
+    
+    uint32_t currentMs = HPT_GetMs();
+    lastCmdSentMs = currentMs;
   }
   return 1;
 }
@@ -200,6 +203,9 @@ uint8_t OnKey1StateChanged(struct BinaryPushKey *sender, BinaryPushKeyState stat
 uint8_t OnKey2StateChanged(struct BinaryPushKey *sender, BinaryPushKeyState state) {
   if (state == PushKeyPressed) {
     sendACCmd(cmdOff);
+
+    uint32_t currentMs = HPT_GetMs();
+    lastCmdSentMs = currentMs;
   }
   return 1;
 }
