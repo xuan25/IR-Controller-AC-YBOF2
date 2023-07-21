@@ -86,7 +86,7 @@ PushableDial dial;
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  if(GPIO_Pin == GPIO_PIN_13)
+  if(GPIO_Pin == GPIO_PIN_1)
   {
     uint64_t currentUs = HPT_GetUs();
     uint64_t deltaUs = HPT_DeltaUs(lastBitReceivedUs, currentUs);
