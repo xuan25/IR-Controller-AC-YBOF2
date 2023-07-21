@@ -32,7 +32,7 @@ struct Encoder;
 // Low-pass debouncing filter config for encoder pins. 
 // Should be greater than the half of the bouncing period in microseconds
 // ((1 / frequency) / 2)
-#define ENCODER_DEBOUNCE_US 10u
+#define ENCODER_DEBOUNCE_US 0u
 
 /**
  * @brief Pin which rising/falling edge occurred.

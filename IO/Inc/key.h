@@ -31,15 +31,15 @@ struct Key;
 // Low-pass debouncing filter config for key pins. 
 // Should be greater than the half of the bouncing period in microseconds
 // ((1 / frequency) / 2)
-#define KEY_DEBOUNCE_US 10u
+#define KEY_DEBOUNCE_US 0u
 
 typedef struct Key_Internal {
   void *Parent;                     // Parent
   uint8_t State;                    // State for the key
 #if KEY_DEBOUNCE_US > 0
   uint64_t LastLevelChangedUs;      // Time of the last level change
-  uint8_t LastChangedLevel;         // Last voltage level
 #endif
+  uint8_t LastChangedLevel;         // Last voltage level
 
   /**
    * @brief State changed callback of the key (parent)

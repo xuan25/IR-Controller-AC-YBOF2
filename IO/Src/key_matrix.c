@@ -79,7 +79,9 @@ void KeyMatrix_Init(KeyMatrix *keyMatrix) {
       GPIO_PinState level = HAL_GPIO_ReadPin(col->GPIOx, col->GPIO_Pin);
 
       key->Internal.LastChangedLevel = level;
+#if KEY_DEBOUNCE_US > 0
       key->Internal.LastLevelChangedUs = tickUs;
+#endif
     }
     HAL_GPIO_WritePin(row->GPIOx, row->GPIO_Pin, keyMatrix->ReleasedLevel);
   }

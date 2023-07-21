@@ -46,9 +46,9 @@ void Key_Update(Key *key, uint8_t level) {
   }
 #else
   // State update
-  if(key->State != level) {
-    uint8_t oldState = key->State;
-    key->State = level;
+  if(key->Internal.State != level) {
+    uint8_t oldState = key->Internal.State;
+    key->Internal.State = level;
     if(key->OnStateChanged == NULL || !key->OnStateChanged(key, oldState, level)) {
       if(key->Internal.OnStateChanged != NULL) {
         key->Internal.OnStateChanged(key, oldState, level);
