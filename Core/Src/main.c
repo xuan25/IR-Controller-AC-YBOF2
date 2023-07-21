@@ -133,10 +133,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void setACCmdLevel(uint8_t level) {
   if (level) {
-    htim4.Instance->CCR3 = htim4.Instance->ARR / 2;
+    htim2.Instance->CCR1 = htim2.Instance->ARR / 2;
   } 
   else {
-    htim4.Instance->CCR3 = htim4.Instance->ARR + 1;
+    htim2.Instance->CCR1 = htim2.Instance->ARR + 1;
   }
 }
 
@@ -327,7 +327,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
-  MX_TIM4_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_Delay(100);
@@ -339,7 +339,7 @@ int main(void)
   OLED_Flush();
 
   setACCmdLevel(0);
-  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 
   HAL_Delay(3000);
 
