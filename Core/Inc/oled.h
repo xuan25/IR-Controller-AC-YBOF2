@@ -6,8 +6,8 @@
 #define OLED_ADDRESS 0x7A // OLED I2C address
 
 typedef enum OLED_TransmitMode {
-    OLED_TRANSMIT_CMD = 0,
-    OLED_TRANSMIT_DATA = 1,
+    OLED_TRANSMIT_CTRL = 0x00,
+    OLED_TRANSMIT_DATA = 0x40,
 } OLED_TransmitMode;
 
 typedef enum OLED_FillingMode {

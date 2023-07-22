@@ -20,10 +20,7 @@ uint8_t gBuffer[PAGES * COLS] = { 0 };
 */
 void OLED_TransmitByte(uint8_t data, OLED_TransmitMode mode) {
 	uint8_t send_buf[2] = { 0 };
-	if (mode == OLED_TRANSMIT_DATA)
-		send_buf[0] = 0x40;
-	else
-		send_buf[0] = 0x00;
+	send_buf[0] = mode;
 	send_buf[1] = data;
 	HAL_I2C_Master_Transmit(&hi2c1, OLED_ADDRESS, send_buf, 2, 1);
 }
@@ -34,61 +31,61 @@ void OLED_TransmitByte(uint8_t data, OLED_TransmitMode mode) {
 */
 void OLED_Init() {
 	// Set Display Off
-	OLED_TransmitByte(0xAE, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xAE, OLED_TRANSMIT_CTRL);
 
 	// Set Display Clock Divide Ratio/Oscillator Frequency
-	OLED_TransmitByte(0xD5, OLED_TRANSMIT_CMD);
-	OLED_TransmitByte(0x80, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xD5, OLED_TRANSMIT_CTRL);
+	OLED_TransmitByte(0x80, OLED_TRANSMIT_CTRL);
 
 	// Set Multiplex Ratio
-	OLED_TransmitByte(0xA8, OLED_TRANSMIT_CMD);
-	OLED_TransmitByte(0x3F, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xA8, OLED_TRANSMIT_CTRL);
+	OLED_TransmitByte(0x3F, OLED_TRANSMIT_CTRL);
 
 	// Set Display Offset
-	OLED_TransmitByte(0xD3, OLED_TRANSMIT_CMD);
-	OLED_TransmitByte(0x00, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xD3, OLED_TRANSMIT_CTRL);
+	OLED_TransmitByte(0x00, OLED_TRANSMIT_CTRL);
 
 	// Set Display Start Line
-	OLED_TransmitByte(0x40, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0x40, OLED_TRANSMIT_CTRL);
 
 	// Set Charge Pump
-	OLED_TransmitByte(0xad, OLED_TRANSMIT_CMD);
-	OLED_TransmitByte(0x8b, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xad, OLED_TRANSMIT_CTRL);
+	OLED_TransmitByte(0x8b, OLED_TRANSMIT_CTRL);
 
 	// Set Segment Re-Map
-	OLED_TransmitByte(0xA1, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xA1, OLED_TRANSMIT_CTRL);
 
 	// Set COM Output Scan Direction
-	OLED_TransmitByte(0xC8, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xC8, OLED_TRANSMIT_CTRL);
 
 	// Set COM Pins Hardware Configuration
-	OLED_TransmitByte(0xDA, OLED_TRANSMIT_CMD);
-	OLED_TransmitByte(0x12, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xDA, OLED_TRANSMIT_CTRL);
+	OLED_TransmitByte(0x12, OLED_TRANSMIT_CTRL);
 
 	// Set Contrast Control 
-	OLED_TransmitByte(0x81, OLED_TRANSMIT_CMD);
-	OLED_TransmitByte(0xff, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0x81, OLED_TRANSMIT_CTRL);
+	OLED_TransmitByte(0xff, OLED_TRANSMIT_CTRL);
 
 	// Set Pre-Charge Period
-	OLED_TransmitByte(0xD9, OLED_TRANSMIT_CMD);
-	OLED_TransmitByte(0x1f, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xD9, OLED_TRANSMIT_CTRL);
+	OLED_TransmitByte(0x1f, OLED_TRANSMIT_CTRL);
 
 	// Set VCOMH Deselect Level
-	OLED_TransmitByte(0xdb, OLED_TRANSMIT_CMD);
-	OLED_TransmitByte(0x40, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xdb, OLED_TRANSMIT_CTRL);
+	OLED_TransmitByte(0x40, OLED_TRANSMIT_CTRL);
 
 	// set VPP
-	OLED_TransmitByte(0x33, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0x33, OLED_TRANSMIT_CTRL);
 
 	// Set Normal/Inverse Display
-	OLED_TransmitByte(0xA6, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xA6, OLED_TRANSMIT_CTRL);
 
 	// Clear Screen
 	OLED_ClearBuffer();
 	OLED_Flush();
 
 	// Set Display On
-	OLED_TransmitByte(0xAF, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xAF, OLED_TRANSMIT_CTRL);
 }
 
 /**
@@ -97,11 +94,11 @@ void OLED_Init() {
 */
 void OLED_Deinit() {
 	// Set Display Off
-	OLED_TransmitByte(0xAE, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xAE, OLED_TRANSMIT_CTRL);
 
 	// Set Charge Pump
-	OLED_TransmitByte(0x8D, OLED_TRANSMIT_CMD);
-	OLED_TransmitByte(0x10, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0x8D, OLED_TRANSMIT_CTRL);
+	OLED_TransmitByte(0x10, OLED_TRANSMIT_CTRL);
 }
 
 /**
@@ -110,11 +107,11 @@ void OLED_Deinit() {
 */
 void OLED_EnterSleep() {
 	// Set Display Off
-	OLED_TransmitByte(0xAE, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xAE, OLED_TRANSMIT_CTRL);
 
 	// Set Charge Pump
-	OLED_TransmitByte(0xAD, OLED_TRANSMIT_CMD);
-	OLED_TransmitByte(0x8B, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xAD, OLED_TRANSMIT_CTRL);
+	OLED_TransmitByte(0x8B, OLED_TRANSMIT_CTRL);
 }
 
 /**
@@ -123,11 +120,11 @@ void OLED_EnterSleep() {
 */
 void OLED_ExitSleep() {
 	// Set Charge Pump
-	OLED_TransmitByte(0xAD, OLED_TRANSMIT_CMD);
-	OLED_TransmitByte(0x8A, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xAD, OLED_TRANSMIT_CTRL);
+	OLED_TransmitByte(0x8A, OLED_TRANSMIT_CTRL);
 
 	// Set Display On
-	OLED_TransmitByte(0xAF, OLED_TRANSMIT_CMD);
+	OLED_TransmitByte(0xAF, OLED_TRANSMIT_CTRL);
 }
 
 
@@ -141,10 +138,10 @@ void OLED_SetFillingMode(OLED_FillingMode mode) {
 	switch (mode)
 	{
 	case OLED_FILLING_NORMAL:
-		OLED_TransmitByte(0xA6, OLED_TRANSMIT_CMD);
+		OLED_TransmitByte(0xA6, OLED_TRANSMIT_CTRL);
 		break;
 	case OLED_FILLING_REVERSED:
-		OLED_TransmitByte(0xA7, OLED_TRANSMIT_CMD);
+		OLED_TransmitByte(0xA7, OLED_TRANSMIT_CTRL);
 		break;
 	default:
 		break;
@@ -161,12 +158,12 @@ void OLED_SetOrientation(OLED_OrientationMode mode) {
 	switch (mode)
 	{
 	case OLED_ORIENTATION_NORMAL:
-		OLED_TransmitByte(0xC8, OLED_TRANSMIT_CMD);
-		OLED_TransmitByte(0xA1, OLED_TRANSMIT_CMD);
+		OLED_TransmitByte(0xC8, OLED_TRANSMIT_CTRL);
+		OLED_TransmitByte(0xA1, OLED_TRANSMIT_CTRL);
 		break;
 	case OLED_ORIENTATION_REVERSED:
-		OLED_TransmitByte(0xC0, OLED_TRANSMIT_CMD);
-		OLED_TransmitByte(0xA0, OLED_TRANSMIT_CMD);
+		OLED_TransmitByte(0xC0, OLED_TRANSMIT_CTRL);
+		OLED_TransmitByte(0xA0, OLED_TRANSMIT_CTRL);
 		break;
 	default:
 		break;
@@ -180,12 +177,12 @@ void OLED_SetOrientation(OLED_OrientationMode mode) {
 void OLED_Flush() {
 	for (uint8_t page = 0; page < PAGES; page++) {
 		// Set page
-		OLED_TransmitByte(0xb0 + page, OLED_TRANSMIT_CMD);
+		OLED_TransmitByte(0xb0 + page, OLED_TRANSMIT_CTRL);
 		// Set column
-		OLED_TransmitByte(0x02, OLED_TRANSMIT_CMD);
-		OLED_TransmitByte(0x10, OLED_TRANSMIT_CMD);
+		OLED_TransmitByte(0x02, OLED_TRANSMIT_CTRL);
+		OLED_TransmitByte(0x10, OLED_TRANSMIT_CTRL);
 		// Set transmit
-		gBuffer[page * COLS] = 0x40;
+		gBuffer[page * COLS] = OLED_TRANSMIT_DATA;
 		HAL_I2C_Master_Transmit(&hi2c1, OLED_ADDRESS, gBuffer + (page * COLS), COLS, 20);
 	}
 }
@@ -213,8 +210,9 @@ void OLED_Plot(uint8_t x, uint8_t y, OLED_PlottingMode mode) {
 	uint8_t page = y / PAGE_WIDTH;
 	uint8_t row = y % PAGE_WIDTH;
 	uint8_t colData = 1 << row;
-	if (mode == OLED_PLOTTING_FILL)
+	if (mode == OLED_PLOTTING_FILL) {
 		gBuffer[page * COLS + col] |= colData;
+	}
 	else {
 		gBuffer[page * COLS + col] &= ~colData;
 	}
