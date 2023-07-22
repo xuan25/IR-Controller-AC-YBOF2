@@ -5,7 +5,7 @@
 
 #define RES_X 128
 #define RES_Y 64
-#define COLS RES_X + 1
+#define COLS (RES_X + 1)
 #define PAGE_WIDTH 8
 #define PAGES RES_Y / PAGE_WIDTH
 
