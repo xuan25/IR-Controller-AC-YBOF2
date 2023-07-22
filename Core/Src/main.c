@@ -401,28 +401,31 @@ int main(void)
     
 
     // canvas
-    sprintf(text_buf, "L: %.1f   U: %.1f", tempLower, tempUpper);
-    OLED_PlotString(0, 8, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+    OLED_ClearBuffer();
 
-    sprintf(text_buf, "T: %.1f H: %.1f", temperature, humidity);
+    sprintf(text_buf, "L: %.1f", tempLower);
+    OLED_PlotString(0, 8, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+    sprintf(text_buf, "U: %.1f", tempUpper);
+    OLED_PlotString(64, 8, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+
+    sprintf(text_buf, "T: %.1f", temperature);
     OLED_PlotString(0, 16, text_buf, OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+    sprintf(text_buf, "H: %.1f", humidity);
+    OLED_PlotString(64, 16, text_buf, OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
     
-    if (cmdSentDeltaMs >= CMD_INTERVAL) {
-      if (lastCmd) {
-        sprintf(text_buf, "L: On    D: -----", cmdSentDeltaMs);
-      } else {
-        sprintf(text_buf, "L: Off   D: -----", cmdSentDeltaMs);
-      }
-    } 
-    else {
-      if (lastCmd) {
-        sprintf(text_buf, "L: On    D: %.5d", cmdSentDeltaMs);
-      } else {
-        sprintf(text_buf, "L: Off   D: %.5d", cmdSentDeltaMs);
-      }
+    if (lastCmd) {
+      sprintf(text_buf, "L: On", cmdSentDeltaMs);
+    } else {
+      sprintf(text_buf, "L: Off", cmdSentDeltaMs);
     }
-    
     OLED_PlotString(0, 40, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+    if (cmdSentDeltaMs >= CMD_INTERVAL) {
+      sprintf(text_buf, "D: -----", cmdSentDeltaMs);
+    } else {
+      sprintf(text_buf, "D: %.5d", cmdSentDeltaMs);
+    }
+    OLED_PlotString(64, 40, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+    
     sprintf(text_buf, "C: %0.8X %0.8X", cmd[0], cmd[1]);
     OLED_PlotString(0, 56, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
 
