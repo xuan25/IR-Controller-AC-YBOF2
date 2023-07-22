@@ -182,7 +182,7 @@ void OLED_Flush() {
 		// Set page
 		OLED_TransmitByte(0xb0 + page, OLED_TRANSMIT_CMD);
 		// Set column
-		OLED_TransmitByte(0x00, OLED_TRANSMIT_CMD);
+		OLED_TransmitByte(0x02, OLED_TRANSMIT_CMD);
 		OLED_TransmitByte(0x10, OLED_TRANSMIT_CMD);
 		// Set transmit
 		gBuffer[page * COLS] = 0x40;
