@@ -3,15 +3,12 @@
 
 #include "stm32f1xx_hal.h"
 
-// AHT20重置寄存器
 void AHT20_ResetRegister(uint8_t addr);
 
-// 初始化AHT20
 void AHT20_Init();
 
 void AHT20_Measure();
 
-// 获取温度和湿度
-void AHT20_Read(float *Temperature, float *Humidity);
+uint8_t AHT20_Read(float *temperature, float *humidity);
 
 #endif
