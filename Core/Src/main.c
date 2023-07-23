@@ -41,8 +41,8 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define CMD_INTERVAL 60 * 1000 
-#define HT_INTERVAL 1000 
-#define HT_READ_DELAY 75 
+#define HT_INTERVAL 1500 
+#define HT_READ_DELAY 80
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
