@@ -406,12 +406,12 @@ int main(void)
     sprintf(text_buf, "L: %.1f", tempLower);
     OLED_PlotString(0, 8, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
     sprintf(text_buf, "U: %.1f", tempUpper);
-    OLED_PlotString(64, 8, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+    OLED_PlotString(64-8, 8, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
 
-    sprintf(text_buf, "T: %.1f", temperature);
+    sprintf(text_buf, "T: %.2f", temperature);
     OLED_PlotString(0, 16, text_buf, OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
-    sprintf(text_buf, "H: %.1f", humidity);
-    OLED_PlotString(64, 16, text_buf, OLED_FONT_1608, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
+    sprintf(text_buf, "H: %.2f", humidity);
+    OLED_PlotString(64+8, 16+8, text_buf, OLED_FONT_0806, OLED_PLOTTING_FILL, OLED_BACKGROUND_FILL);
     
     if (lastCmd) {
       sprintf(text_buf, "L: On", cmdSentDeltaMs);
