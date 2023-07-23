@@ -3,8 +3,8 @@
 
 #define AHT20_ADDRESS 0x70
 
-#define READ_DECIMAL_SHIFT 12		// 20 max
-#define READ_DECIMAL_SCALE 4096
+#define CALC_DECIMAL_SHIFT 12		// 20 max
+#define CALC_DECIMAL_SCALE 4096
 
 /**
  * @brief Initialize AHT20
@@ -25,14 +25,14 @@ void AHT20_Init(void) {
  * 
 */
 void AHT20_ResetRegister(uint8_t addr) {
-	uint8_t send_buf[3] = { 0x00 };
-	send_buf[0] = addr;
-	HAL_I2C_Master_Transmit(&hi2c1, AHT20_ADDRESS, send_buf, 3, 10);
+	uint8_t sendBuf[3] = { 0x00 };
+	sendBuf[0] = addr;
+	HAL_I2C_Master_Transmit(&hi2c1, AHT20_ADDRESS, sendBuf, 3, 10);
 	HAL_Delay(5);
-	HAL_I2C_Master_Receive(&hi2c1, AHT20_ADDRESS, send_buf, 3, 10);
+	HAL_I2C_Master_Receive(&hi2c1, AHT20_ADDRESS, sendBuf, 3, 10);
 	HAL_Delay(10);
-	send_buf[0] = 0xB0 | addr;
-	HAL_I2C_Master_Transmit(&hi2c1, AHT20_ADDRESS, send_buf, 3, 10);
+	sendBuf[0] = 0xB0 | addr;
+	HAL_I2C_Master_Transmit(&hi2c1, AHT20_ADDRESS, sendBuf, 3, 10);
 }
 
 /**
@@ -40,8 +40,8 @@ void AHT20_ResetRegister(uint8_t addr) {
  * 
 */
 void AHT20_Measure() {
-	uint8_t cmd_ac[3] = { 0xAC, 0x33, 0x00 };
-	HAL_I2C_Master_Transmit(&hi2c1, AHT20_ADDRESS, cmd_ac, 3, 10);
+	uint8_t cmdAC[3] = { 0xAC, 0x33, 0x00 };
+	HAL_I2C_Master_Transmit(&hi2c1, AHT20_ADDRESS, cmdAC, 3, 10);
 }
 
 uint8_t AHT20_CalcCRC8(uint8_t *data, uint8_t length)
@@ -82,10 +82,10 @@ uint8_t AHT20_Read(float *temperature, float *humidity) {
 		return 0;
 	}
 	int64_t rawHum = readBuf[1] << 12 | readBuf[2] << 4 | readBuf[3] >> 4;
-	int32_t hum = ((rawHum << READ_DECIMAL_SHIFT) * 100) >> 20;
+	int32_t hum = ((rawHum << CALC_DECIMAL_SHIFT) * 100) >> 20;
 	int64_t rawTmp = (readBuf[3] & 0xf) << 16 | readBuf[4] << 8 | readBuf[5];
-	int32_t tmp = (((rawTmp << READ_DECIMAL_SHIFT) * 200) >> 20) - (50 << READ_DECIMAL_SHIFT);
-	*temperature = ((float) tmp) / READ_DECIMAL_SCALE;
-	*humidity = ((float) hum) / READ_DECIMAL_SCALE;
+	int32_t tmp = (((rawTmp << CALC_DECIMAL_SHIFT) * 200) >> 20) - (50 << CALC_DECIMAL_SHIFT);
+	*temperature = ((float) tmp) / CALC_DECIMAL_SCALE;
+	*humidity = ((float) hum) / CALC_DECIMAL_SCALE;
 	return 1;
 }
