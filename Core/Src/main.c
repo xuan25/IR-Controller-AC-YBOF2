@@ -136,7 +136,8 @@ void setACCmdLevel(uint8_t level) {
     htim2.Instance->CCR1 = htim2.Instance->ARR / 2;
   } 
   else {
-    htim2.Instance->CCR1 = htim2.Instance->ARR + 1;
+    // htim2.Instance->CCR1 = htim2.Instance->ARR + 1;
+    htim2.Instance->CCR1 = 0;
   }
 }
 
